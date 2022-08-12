@@ -107,29 +107,39 @@ Gen_test = Generator(x_test,
 Gen_test.add_error(error_column_inx, errors)
 Gen_test.normalize_test(norm_fit, norm_y_fit)
 
+input_model = Input(shape=(lenght, 8))
+# dense = Dense(1024, activation='relu')(input_model)
+lstm = LSTM(1024, return_sequences=False)(input_model)
+lstm = Dropout(0.3)(lstm)
+lstm = BatchNormalization()(lstm)
+# lstm = LSTM(256, return_sequences=True)(lstm)
+flatten = Flatten()(lstm)
+output_rest = Dense(2, activation='linear')(flatten)
+output_coll = Dense(3, activation='softmax')(flatten)
 
-data = []
-answer = []
+model_name = 'test_coll_lstm_n50'
+folder = 'data/'
+model_folder = folder + 'models/'
+graph_folder = folder + 'graphs/'
 
-# Проверка выходных данных
-for i in Gen:
-    data.append(i[0])
-    answer.append(np.concatenate(i[1:],axis=1))
-
-# Приведение к массивам numpy
-data = np.array(data)
-answer = np.array(answer)
-print(data.shape, answer.shape)
-
-# Тестирование, в случае ошибок приведения формы
-prev_shape = 0
-for i in range(data.shape[0]):
-    current_shape = len(data[i])
-    if prev_shape != current_shape:
-        print('shape', prev_shape, current_shape, i)
-        prev_shape = current_shape
-for i in range(len(answer)):
-    current_shape = len(answer[i])
-    if prev_shape != current_shape:
-        print('shape _ answer', prev_shape, current_shape, i)
-        prev_shape = current_shape
+model = Model(input_model, [output_coll, output_rest], name=model_name)
+model.summary()
+model.compile(loss="MSE", metrics=['accuracy'], optimizer=Adam(learning_rate=1e-5))
+epochs = 20
+history = model.fit(Gen,
+                        epochs=epochs,
+                        verbose=1,
+                        batch_size=batch_size,
+                        validation_data=Gen_test)
+plt.subplot(2, 2, 1)
+plt.title(label='ошибка')
+plt.plot(history.history['val_loss'][6:], label='Test')
+plt.plot(history.history['loss'][6:], label='Train')
+model.save(model_folder + model_name)
+plt.legend()
+plt.subplot(1, 2, 2)
+plt.title(label='точность')
+plt.plot(history.history['val_accuracy'], label='Test')
+plt.plot(history.history['accuracy'],label='Train')
+plt.savefig(graph_folder + model_name + '.jpg')
+plt.show()

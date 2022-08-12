@@ -60,7 +60,8 @@ class Generator(tensorflow.keras.utils.Sequence):
                  length,
                  batch_size,
                  x_columns,
-                 y_columns):
+                 y_columns,
+                 only_colls=True):
         # Инициализируем и записывем переменные батча и сколько
         # понадобится предыдущих значений для предсказания, а также колонки, которые выбраны для анализа
         '''
@@ -87,6 +88,8 @@ class Generator(tensorflow.keras.utils.Sequence):
         self.batch_size = batch_size
         self.length = length
         self.norm_fit = []
+        self.norm_y_fit = []
+        self.only_colls = only_colls
     def info(self):
         '''
         Вывод информации о датафрейма
@@ -109,12 +112,18 @@ class Generator(tensorflow.keras.utils.Sequence):
             xScaler.fit(self.x_data)
             self.norm_fit.append(xScaler)
             self.x_data = xScaler.transform(self.x_data)
+        for i in range(2):
+            yScaler = StandardScaler()
+            yScaler.fit(self.y_data_rest)
+            self.norm_y_fit.append(yScaler)
         # возвращает список нормализаторов, чтобы потом нормализировать
         # тестовые данные
-        return self.norm_fit
-    def normalize_test(self, norm_fit):
+        return self.norm_fit, self.norm_y_fit
+    def normalize_test(self, norm_fit, norm_y_fit):
         for i in range(len(self.x_columns)):
             self.x_data = norm_fit[i].transform(self.x_data)
+        for i in range(2):
+            self.y_data_rest = norm_y_fit[i].transform(self.y_data_rest)
     def __get_data(self, x_batch, y_batch_coll, y_batch_rest):
         # Разбиваем наш батч на сеты
         # Определим максимальный индекс
@@ -122,6 +131,7 @@ class Generator(tensorflow.keras.utils.Sequence):
         x = [x_batch[i:i+self.length] for i in range(form)]
         y_coll = [y_batch_coll[i] for i in range(form)]
         y_rest = [y_batch_rest[i] for i in range(form)]
+
         return  np.array(x), np.array(y_coll), np.array(y_rest)
     def __len__(self):
         return self.x_data.shape[0] // self.batch_size - self.length
@@ -137,4 +147,6 @@ class Generator(tensorflow.keras.utils.Sequence):
         y_batch_rest = self.y_data_rest[index*self.batch_size + self.length - 1:
                                 (index+1)*self.batch_size+self.length]
         x, y_coll, y_rest = self.__get_data(x_batch, y_batch_coll, y_batch_rest)
+        if self.only_colls == True:
+            return x, y_coll
         return x, y_coll, y_rest
