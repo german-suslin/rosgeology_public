@@ -122,7 +122,7 @@ folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
 
-model = Model(input_model, [output_coll, output_rest], name=model_name)
+model = Model(input_model, output_coll, name=model_name)
 model.summary()
 model.compile(loss="MSE", metrics=['accuracy'], optimizer=Adam(learning_rate=1e-5))
 epochs = 20
