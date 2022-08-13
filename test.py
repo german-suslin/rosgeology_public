@@ -83,7 +83,7 @@ errors = [range_ggkp_loss, range_gk_loss, range_pe_loss,
           range_ds_loss, range_dtp_loss, 0, 0, 0]
 
 
-error_column_inx = [i for i in range(len(errors))]
+error_column_inx = [0, 1, 2, 4, 5, 6, 7]
 print(error_column_inx)
 print(x_train.shape)
 # проверка работы генератора - добавление ошибки и нормализация

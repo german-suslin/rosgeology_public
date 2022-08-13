@@ -100,7 +100,7 @@ class Generator(tensorflow.keras.utils.Sequence):
     def add_error(self, errors_indx, errors_value):
         # Добавляем ошибки к исходным данным
         for row in range(len(self.x_data)):
-            for column in errors_indx:
+            for column in range(len(self.x_data[0])):
                 self.x_data[row, column] = round(self.x_data[row, column] + \
                                                  random.uniform(-errors_value[column],
                                                                 errors_value[column]),3)
@@ -131,7 +131,6 @@ class Generator(tensorflow.keras.utils.Sequence):
         x = [x_batch[i:i+self.length] for i in range(form)]
         y_coll = [y_batch_coll[i] for i in range(form)]
         y_rest = [y_batch_rest[i] for i in range(form)]
-
         return  np.array(x), np.array(y_coll), np.array(y_rest)
     def __len__(self):
         return self.x_data.shape[0] // (self.batch_size + self.length)
@@ -143,9 +142,10 @@ class Generator(tensorflow.keras.utils.Sequence):
                                 (index+1)*self.batch_size + self.length]
 
         y_batch_coll = self.y_data_coll[index*self.batch_size + self.length - 1:
-                                (index+1)*self.batch_size+self.length]
+                                (index+1)*self.batch_size+self.length - 1]
         y_batch_rest = self.y_data_rest[index*self.batch_size + self.length - 1:
-                                (index+1)*self.batch_size+self.length]
+                                (index+1)*self.batch_size+self.length - 1]
+        print(y_batch_rest.shape, x_batch.shape)
         x, y_coll, y_rest = self.__get_data(x_batch, y_batch_coll, y_batch_rest)
         if self.only_colls == True:
             return x, y_coll
