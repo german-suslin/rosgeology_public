@@ -78,7 +78,7 @@ range_ds_loss = 50
 range_dtp_loss = 20
 
 lenght = 30
-batch_size = 10
+batch_size = 100
 errors = [range_ggkp_loss, range_gk_loss, range_pe_loss,
           range_ds_loss, range_dtp_loss, 0, 0, 0]
 
@@ -109,8 +109,8 @@ Gen_test.normalize_test(norm_fit, norm_y_fit)
 
 input_model = Input(shape=(lenght, 8))
 # dense = Dense(1024, activation='relu')(input_model)
-lstm = LSTM(1024, return_sequences=False)(input_model)
-lstm = Dropout(0.3)(lstm)
+lstm = LSTM(256, return_sequences=False)(input_model)
+lstm = Dropout(0.1)(lstm)
 lstm = BatchNormalization()(lstm)
 # lstm = LSTM(256, return_sequences=True)(lstm)
 flatten = Flatten()(lstm)
@@ -124,8 +124,8 @@ graph_folder = folder + 'graphs/'
 
 model = Model(input_model, output_coll, name=model_name)
 model.summary()
-model.compile(loss="MSE", metrics=['accuracy'], optimizer=Adam(learning_rate=1e-5))
-epochs = 20
+model.compile(loss="categorical_crossentropy", metrics=['accuracy'], optimizer=Adam(learning_rate=1e-5))
+epochs = 100
 history = model.fit(Gen,
                         epochs=epochs,
                         verbose=1,
@@ -133,8 +133,8 @@ history = model.fit(Gen,
                         validation_data=Gen_test)
 plt.subplot(2, 2, 1)
 plt.title(label='ошибка')
-plt.plot(history.history['val_loss'][6:], label='Test')
-plt.plot(history.history['loss'][6:], label='Train')
+plt.plot(history.history['val_loss'], label='Test')
+plt.plot(history.history['loss'], label='Train')
 model.save(model_folder + model_name)
 plt.legend()
 plt.subplot(1, 2, 2)
