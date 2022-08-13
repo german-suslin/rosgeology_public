@@ -78,7 +78,7 @@ range_ds_loss = 50
 range_dtp_loss = 20
 
 lenght = 30
-batch_size = 10
+batch_size = 100
 errors = [range_ggkp_loss, range_gk_loss, range_pe_loss,
           range_ds_loss, range_dtp_loss, 0, 0, 0]
 
@@ -93,7 +93,7 @@ Gen = Generator(x_train,
                 lenght,
                 batch_size=batch_size,
                 x_columns=error_column_inx,
-                y_columns=[0])
+                y_columns=[0], only_colls=False)
 Gen.add_error(error_column_inx, errors)
 norm_fit, norm_y_fit = Gen.normalize()
 print('norm fit',len(norm_fit))
@@ -103,7 +103,7 @@ Gen_test = Generator(x_test,
                      lenght,
                      batch_size=batch_size,
                      x_columns=error_column_inx,
-                     y_columns=[0])
+                     y_columns=[0], only_colls=False)
 Gen_test.add_error(error_column_inx, errors)
 Gen_test.normalize_test(norm_fit, norm_y_fit)
 
@@ -114,7 +114,8 @@ answer = []
 # Проверка выходных данных
 for i in Gen:
     data.append(i[0])
-    answer.append(np.concatenate(i[1:],axis=1))
+    # answer.append(np.concatenate(i[1:],axis=1))
+    answer.append(i[1])
 
 # Приведение к массивам numpy
 data = np.array(data)

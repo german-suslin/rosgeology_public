@@ -134,7 +134,7 @@ class Generator(tensorflow.keras.utils.Sequence):
 
         return  np.array(x), np.array(y_coll), np.array(y_rest)
     def __len__(self):
-        return self.x_data.shape[0] // self.batch_size - self.length
+        return self.x_data.shape[0] // (self.batch_size + self.length)
 
     def __getitem__(self, index):
         # Формирование выборки батчей
@@ -149,4 +149,6 @@ class Generator(tensorflow.keras.utils.Sequence):
         x, y_coll, y_rest = self.__get_data(x_batch, y_batch_coll, y_batch_rest)
         if self.only_colls == True:
             return x, y_coll
-        return x, y_coll, y_rest
+        else:
+            return x, y_rest
+        # return x, [y_coll, y_rest]
