@@ -144,11 +144,11 @@ class Generator(tensorflow.keras.utils.Sequence):
         x_batch = self.x_data[index * self.batch_size:
                               (index + 1) * self.batch_size + self.length]
 
-        y_batch_coll = self.y_data_coll[index * self.batch_size + self.length:
-                                        (index + 1) * self.batch_size + self.length]
+        y_batch_coll = self.y_data_coll[index * self.batch_size + self.length - 1:
+                                        (index + 1) * self.batch_size + self.length - 1]
 
-        y_batch_rest = self.y_data_rest[index * self.batch_size + self.length:
-                                        (index + 1) * self.batch_size + self.length]
+        y_batch_rest = self.y_data_rest[index * self.batch_size + self.length - 1:
+                                        (index + 1) * self.batch_size + self.length - 1]
         # print(y_batch_rest.shape, y_batch_coll.shape, x_batch.shape)
         x, y_coll, y_rest = self.__get_data(x_batch, y_batch_coll, y_batch_rest)
 
