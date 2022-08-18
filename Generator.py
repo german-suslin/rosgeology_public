@@ -157,3 +157,40 @@ class Generator(tensorflow.keras.utils.Sequence):
         else:
             return x, y_rest
         # return x, [y_coll, y_rest]
+
+
+class Worker:
+    def __init__(self, fname):
+        '''
+        Инициализация
+        '''
+        self.df = pd.read_csv(fname, decimal=',')
+
+    def info(self):
+        '''
+        Вывод информации о датафрейма
+        '''
+        print(self.df.head())
+        print(f'\nРазмер: {self.df.shape}')
+
+    def get_y_collektors(self):
+        '''
+        Получение y_data для столбца "Коллекторы"
+        '''
+        # Преобразование в OHE
+        enc = OneHotEncoder()
+        y_data_coll = enc.fit_transform(
+            self.df['Коллекторы'].values.reshape(-1, 1)
+        ).toarray().astype(np.int16)
+        y_data_rest = self.df[['KPEF', 'KNEF']].values.astype(np.float32)
+        print(f'Размер: {y_data_coll.shape, y_data_rest.shape}', self.df.columns)
+        return y_data_coll, y_data_rest
+
+    def get_x_data(self, columns):
+        '''
+        Получение x_data
+        - columns - список столбцов вида ['GGKP_korr', 'GK_korr', 'DTP_korr']
+        '''
+        get_x_data = self.df[columns].values.astype(np.float32)
+        print(f'Размер: {get_x_data.shape}')
+        return get_x_data

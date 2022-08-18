@@ -91,7 +91,7 @@ range_pe_loss = 1
 range_ds_loss = 50
 range_dtp_loss = 20
 
-lenght = 20
+lenght = 1
 batch_size = 50
 # errors = [range_ggkp_loss, range_gk_loss, range_pe_loss,
 #           range_ds_loss, range_dtp_loss, 0, 0, 0]
