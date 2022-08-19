@@ -142,7 +142,7 @@ class Generator(tensorflow.keras.utils.Sequence):
         # Формирование выборки батчей
         # Берём значения от 0 до размера батча + длина выборки предсказания
         x_batch = self.x_data[index * self.batch_size:
-                              (index + 1) * self.batch_size + self.length]
+                              (index + 1) * self.batch_size + self.length - 1]
 
         y_batch_coll = self.y_data_coll[index * self.batch_size + self.length - 1:
                                         (index + 1) * self.batch_size + self.length - 1]
