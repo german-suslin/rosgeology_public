@@ -120,7 +120,7 @@ Gen_test.normalize_test(norm_fit, norm_y_fit)
 
 # Создание модели
 input_model = Input(shape=(lenght, len(x_columns)))
-lstm = LSTM(128, return_sequences=True)(input_model)
+lstm = LSTM(512, return_sequences=True)(input_model)
 batch_normalized1 = BatchNormalization()(lstm)
 flatten = Flatten()(batch_normalized1)
 # dropout1 = Dropout(0.1)(batch_normalized1)
@@ -131,7 +131,7 @@ flatten = Flatten()(batch_normalized1)
 output_coll = Dense(3, activation='softmax')(flatten)
 
 # Путь сохранения модели и графиков
-model_name = 'LSTM_model_corrected_generator_test2'
+model_name = 'LSTM_model1_simple'
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
