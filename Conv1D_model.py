@@ -30,42 +30,46 @@ import numpy as np
 # print(df.head())
 
 # Подгрузка данных
-train_worker1 = Worker('train.csv')
-train_worker2 = Worker('train_2.csv')
-train_worker3 = Worker('train_3corr.csv')
-test_worker = Worker('test.csv')
+# train_worker1 = Worker('train.csv')
+# train_worker2 = Worker('train_2.csv')
+# train_worker3 = Worker('train_3corr.csv')
+# test_worker = Worker('test.csv')
+train_worker0 = Worker('df_all_gen.csv')
+
 print('worker info')
-train_worker1.info()
-train_worker2.info()
-train_worker3.info()
+# train_worker1.info()
+# train_worker2.info()
+# train_worker3.info()
 columns = ['GGKP_korr', 'GK_korr', 'PE_korr', 'DS_korr', 'DTP_korr', 'Wi_korr', 'BK_korr', 'BMK_korr']
+x_data = train_worker0.get_x_data(columns)
+y_data_colls, y_data_rest = train_worker0.get_y_collektors()
 print('get data')
-x_train1 = train_worker1.get_x_data(columns)
-y_train_coll1, y_train_rest1 = train_worker1.get_y_collektors()
-
-x_train2 = train_worker2.get_x_data(columns)
-y_train_coll2, y_train_rest2 = train_worker2.get_y_collektors()
-
-x_train3 = train_worker3.get_x_data(columns)
-y_train_coll3, y_train_rest3 = train_worker3.get_y_collektors()
-
-x_val = test_worker.get_x_data(columns)
-y_val_coll, y_val_rest = test_worker.get_y_collektors()
+# x_train1 = train_worker1.get_x_data(columns)
+# y_train_coll1, y_train_rest1 = train_worker1.get_y_collektors()
+#
+# x_train2 = train_worker2.get_x_data(columns)
+# y_train_coll2, y_train_rest2 = train_worker2.get_y_collektors()
+#
+# x_train3 = train_worker3.get_x_data(columns)
+# y_train_coll3, y_train_rest3 = train_worker3.get_y_collektors()
+#
+# x_val = test_worker.get_x_data(columns)
+# y_val_coll, y_val_rest = test_worker.get_y_collektors()
 
 # Объединение и разбиение на обучающую и проверочную выборки
-print('before concat:', x_train1.shape,
-      x_train2.shape,
-      x_train3.shape,
-      y_train_coll1.shape,
-      y_train_coll2.shape,
-      y_train_coll3.shape)
-print(y_train_coll3[:2])
-
-x_data = np.concatenate([x_train1, x_train2, x_train3], axis=0)
-y_data_colls = np.concatenate([y_train_coll1, y_train_coll2, y_train_coll3], axis=0)
-y_data_rest = np.concatenate([y_train_rest1, y_train_rest2, y_train_rest3], axis=0)
+# print('before concat:', x_train1.shape,
+#       x_train2.shape,
+#       x_train3.shape,
+#       y_train_coll1.shape,
+#       y_train_coll2.shape,
+#       y_train_coll3.shape)
+# print(y_train_coll3[:2])
+#
+# x_data = np.concatenate([x_train1, x_train2, x_train3], axis=0)
+# y_data_colls = np.concatenate([y_train_coll1, y_train_coll2, y_train_coll3], axis=0)
+# y_data_rest = np.concatenate([y_train_rest1, y_train_rest2, y_train_rest3], axis=0)
 y_data = np.concatenate([y_data_colls, y_data_rest], axis=1)
-x_test, x_train, y_test, y_train = train_test_split(x_data, y_data, train_size=0.7, shuffle=False)
+x_test, x_train, y_test, y_train = train_test_split(x_data, y_data, train_size=0.3, shuffle=False)
 y_train_coll = y_train[:,:3]
 y_test_coll = y_test[:,:3]
 y_train_rest = y_train[:, 3:]
@@ -93,8 +97,8 @@ print(error_column_inx)
 
 # Параметры данных и эпохи обучения модели
 lenght = 20
-batch_size = 100
-epochs = 100
+batch_size = 500
+epochs = 150
 
 
 # Создание генератора, нормализация данных
@@ -117,22 +121,44 @@ Gen_test = Generator(x_test,
                      y_columns=[0], only_colls=True)
 Gen_test.add_error(error_column_inx, errors)
 Gen_test.normalize_test(norm_fit, norm_y_fit)
+Gen.info()
+Gen_test.info()
+# Создание модели
+# input_model = Input(shape=(lenght, len(x_columns)))
+# conv = Conv1D(32, 5, activation='relu', padding='same')(input_model)
+# batch_normalized1 = BatchNormalization()(conv)
+# max_pool = MaxPooling1D()(batch_normalized1)
+# # dropout1 = Dropout(0.2)(max_pool)
+# conv2 = Conv1D(16, 5, activation='relu', padding='same')(max_pool)
+# batch_normalized2 = BatchNormalization()(conv2)
+# max_pool = MaxPooling1D()(batch_normalized2)
+# conv3 = Conv1D(16, 5, activation='relu', padding='same')(max_pool)
+# flatten = Flatten()(max_pool)
 
 # Создание модели
 input_model = Input(shape=(lenght, len(x_columns)))
-conv = Conv1D(512, 3, activation='relu', padding='same')(input_model)
+conv = Conv1D(128, 4, activation='relu', padding='same')(input_model)
+conv2 = Conv1D(64, 4, activation='relu', padding='same')(input_model)
 batch_normalized1 = BatchNormalization()(conv)
-max_pool = MaxPooling1D()(batch_normalized1)
-flatten = Flatten()(max_pool)
-# dropout1 = Dropout(0.1)(batch_normalized1)
+max_pool1 = MaxPooling1D()(batch_normalized1)
+flatten1 = Flatten()(max_pool1)
+# dropout1 = Dropout(0.2)(max_pool)
+
+batch_normalized2 = BatchNormalization()(conv2)
+max_pool2 = MaxPooling1D()(batch_normalized2)
+flatten2 = Flatten()(max_pool2)
+concat = concatenate([flatten1, flatten2])
+# conv3 = Conv1D(16, 5, activation='relu', padding='same')(max_pool)
+
+# dropout1 = Dropout(0.3)(flatten)
 # flatten = Flatten()(dropout1)
-# dense = Dense(1024, activation='linear')(flatten)
+# dense = Dense(128, activation='relu')(dropout1)
 # batch_normalized2 = BatchNormalization()(dense)
 # dropout2 = Dropout(0.3)(batch_normalized2)
-output_coll = Dense(3, activation='softmax')(flatten)
+output_coll = Dense(3, activation='softmax')(concat)
 
 # Путь сохранения модели и графиков
-model_name = 'Conv1d_simple_n20'
+model_name = 'Conv1d_parallel_n20'
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'

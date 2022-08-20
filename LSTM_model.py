@@ -120,7 +120,9 @@ Gen_test.normalize_test(norm_fit, norm_y_fit)
 
 # Создание модели
 input_model = Input(shape=(lenght, len(x_columns)))
-lstm = LSTM(512, return_sequences=True)(input_model)
+lstm = LSTM(64, return_sequences=True)(input_model)
+lstm = LSTM(64, return_sequences=True)(lstm)
+lstm = LSTM(64, return_sequences=True)(lstm)
 batch_normalized1 = BatchNormalization()(lstm)
 flatten = Flatten()(batch_normalized1)
 # dropout1 = Dropout(0.1)(batch_normalized1)
