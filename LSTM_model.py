@@ -137,7 +137,7 @@ print('validation data shape', x_val_data.shape, y_val_data.shape)
 
 # Создание модели
 input_model = Input(shape=(lenght, len(x_columns)))
-lstm = LSTM(128, return_sequences=True)(input_model)
+lstm = LSTM(1024, return_sequences=True)(input_model)
 # lstm = LSTM(64, return_sequences=True)(lstm)
 # lstm = LSTM(64, return_sequences=True)(lstm)
 batch_normalized1 = BatchNormalization()(lstm)
@@ -150,7 +150,7 @@ flatten = Flatten()(batch_normalized1)
 output_coll = Dense(3, activation='softmax')(flatten)
 
 # Путь сохранения модели и графиков
-model_name = 'LSTM_model1_simple'
+model_name = 'LSTM_model1_simple_big'
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
