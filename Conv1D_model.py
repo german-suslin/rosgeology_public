@@ -149,11 +149,11 @@ print('validation data shape', x_val_data.shape, y_val_data.shape)
 # Создание модели
 if train_state == 'consistent':
     input_model = Input(shape=(lenght, len(x_columns)))
-    conv = Conv1D(64, 5, activation='relu', padding='same')(input_model)
+    conv = Conv1D(128, 5, activation='relu', padding='same')(input_model)
     batch_normalized1 = BatchNormalization()(conv)
     max_pool = MaxPooling1D()(batch_normalized1)
     # dropout1 = Dropout(0.2)(max_pool)
-    conv2 = Conv1D(32, 5, activation='relu', padding='same')(max_pool)
+    conv2 = Conv1D(64, 5, activation='relu', padding='same')(max_pool)
     batch_normalized2 = BatchNormalization()(conv2)
     max_pool = MaxPooling1D()(batch_normalized2)
     # conv3 = Conv1D(16, 5, activation='relu', padding='same')(max_pool)
@@ -175,7 +175,7 @@ if train_state == 'parallel':
 output_coll = Dense(3, activation='softmax')(last_layer)
 
 # Путь сохранения модели и графиков
-model_name = 'Conv1d_{}_n20'.format(train_state)
+model_name = 'Conv1d_incr_neurons_{}_n20'.format(train_state)
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
