@@ -78,7 +78,7 @@ range_ds_loss = 50
 range_dtp_loss = 20
 
 lenght = 30
-batch_size = 100
+batch_size = 120
 errors = [range_ggkp_loss, range_gk_loss, range_pe_loss,
           range_ds_loss, range_dtp_loss, 0, 0, 0]
 
