@@ -99,7 +99,7 @@ print(error_column_inx)
 lenght = 20
 batch_size = 300
 epochs = 600
-train_state = 'parallel'
+train_state = 'consistent' # parallel or consistent
 
 # Создание генератора, нормализация данных
 Gen = Generator(x_train,
