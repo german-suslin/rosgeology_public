@@ -6,7 +6,7 @@ import random
 import tensorflow
 from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator  # для генерации выборки временных рядов
 from tensorflow.keras.layers import Dense, BatchNormalization
-from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras.models import Sequential, Model, load_model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import concatenate, \
     Input, Dense, Dropout, BatchNormalization, \
@@ -144,6 +144,8 @@ y_val_data = np.array(y_val_data)
 print('validation data shape', x_val_data.shape, y_val_data.shape)
 
 
+
+
 # Создание модели
 if train_state == 'consistent':
     input_model = Input(shape=(lenght, len(x_columns)))
@@ -183,13 +185,27 @@ model = Model(input_model, output_coll, name=model_name)
 model.summary()
 model.compile(loss="categorical_crossentropy", metrics=['accuracy'], optimizer=Adam(learning_rate=1e-5))
 
+# Callbacks
+# создаём callback для сохранения лучшего результата и для уменьшения шага обучения при выходе на плато.
+reduse_callback = tensorflow.keras.callbacks.ReduceLROnPlateau(monitor='accuracy',factor=0.2,patience=30,verbose=1,mode='max',min_lr=0.000001,cooldown=10,min_delta=0.01)
+save_best_callback = tensorflow.keras.callbacks.ModelCheckpoint(
+    filepath=model_folder+model_name,
+    save_weights_only=False,
+    monitor='val_accuracy',
+    mode='max',
+    save_best_only=True, verbose=1)
+
+
 if __name__ == '__main__':
 # Обучение модели
     history = model.fit(Gen,
                             epochs=epochs,
                             verbose=1,
                             batch_size=batch_size,
-                            validation_data=Gen_test)
+                            validation_data=Gen_test, callbacks=[reduse_callback, save_best_callback])
+
+    model = load_model(model_folder + model_name, compile=False)
+    model.compile(loss="categorical_crossentropy", metrics=['accuracy'], optimizer=Adam(learning_rate=1e-5))
 
     print('validation accuracy =',
           round(100*accuracy_calculate(model, x_val_data[0], y_val_data[0]),2)
