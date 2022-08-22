@@ -99,7 +99,7 @@ print(error_column_inx)
 lenght = 20
 batch_size = 300
 epochs = 600
-train_model = 'consistent'
+train_state = 'parallel'
 
 # Создание генератора, нормализация данных
 Gen = Generator(x_train,
@@ -145,7 +145,7 @@ print('validation data shape', x_val_data.shape, y_val_data.shape)
 
 
 # Создание модели
-if train_model == 'consistent':
+if train_state == 'consistent':
     input_model = Input(shape=(lenght, len(x_columns)))
     conv = Conv1D(64, 5, activation='relu', padding='same')(input_model)
     batch_normalized1 = BatchNormalization()(conv)
@@ -158,13 +158,13 @@ if train_model == 'consistent':
     last_layer = Flatten()(max_pool)
 
 # Создание модели
-if train_model == 'parallel':
+if train_state == 'parallel':
     input_model = Input(shape=(lenght, len(x_columns)))
-    conv = Conv1D(128, 4, activation='relu', padding='same')(input_model)
+    conv = Conv1D(64, 5, activation='relu', padding='same')(input_model)
     batch_normalized1 = BatchNormalization()(conv)
     max_pool1 = MaxPooling1D()(batch_normalized1)
     flatten1 = Flatten()(max_pool1)
-    conv2 = Conv1D(64, 4, activation='relu', padding='same')(input_model)
+    conv2 = Conv1D(32, 5, activation='relu', padding='same')(input_model)
     batch_normalized2 = BatchNormalization()(conv2)
     max_pool2 = MaxPooling1D()(batch_normalized2)
     flatten2 = Flatten()(max_pool2)
@@ -173,7 +173,7 @@ if train_model == 'parallel':
 output_coll = Dense(3, activation='softmax')(last_layer)
 
 # Путь сохранения модели и графиков
-model_name = 'Conv1d_consistent_n20'
+model_name = 'Conv1d_{}_n20'.format(train_state)
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
