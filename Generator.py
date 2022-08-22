@@ -194,3 +194,13 @@ class Worker:
         get_x_data = self.df[columns].values.astype(np.float32)
         print(f'Размер: {get_x_data.shape}')
         return get_x_data
+
+def accuracy_calculate(model, x_val, y_val):
+    right_answer = []
+    predVal = model.predict(x_val)
+    for i, x in enumerate(predVal):
+        if np.argmax(x) == np.argmax(y_val[i]):
+            right_answer.append([np.argmax(x), i])
+    right_answer = np.array(right_answer)
+    accuracy = len(right_answer)/len(y_val)
+    return accuracy
