@@ -187,7 +187,7 @@ model.compile(loss="categorical_crossentropy", metrics=['accuracy'], optimizer=A
 
 # Callbacks
 # создаём callback для сохранения лучшего результата и для уменьшения шага обучения при выходе на плато.
-reduse_callback = tensorflow.keras.callbacks.ReduceLROnPlateau(monitor='accuracy',factor=0.2,patience=30,verbose=1,mode='max',min_lr=0.000001,cooldown=10,min_delta=0.01)
+reduse_callback = tensorflow.keras.callbacks.ReduceLROnPlateau(monitor='accuracy',factor=0.2,patience=40,verbose=1,mode='max',min_lr=0.000001,cooldown=10,min_delta=0.01)
 save_best_callback = tensorflow.keras.callbacks.ModelCheckpoint(
     filepath=model_folder+model_name,
     save_weights_only=False,
