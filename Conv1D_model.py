@@ -146,7 +146,7 @@ print('validation data shape', x_val_data.shape, y_val_data.shape)
 
 
 
-# Создание модели
+# Создание модели (64, 32 / 128, 64 - большая выборка)
 if train_state == 'consistent':
     input_model = Input(shape=(lenght, len(x_columns)))
     conv = Conv1D(128, 5, activation='relu', padding='same')(input_model)
