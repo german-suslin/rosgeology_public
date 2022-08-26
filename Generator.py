@@ -123,7 +123,7 @@ class Generator(tensorflow.keras.utils.Sequence):
     def normalize_test(self, norm_fit, norm_y_fit):
         for i in range(len(self.x_columns)):
             self.x_data = norm_fit[i].transform(self.x_data)
-        for i in range(2):
+        for i in range(len(norm_y_fit)):
             self.y_data_rest = norm_y_fit[i].transform(self.y_data_rest)
 
     def __get_data(self, x_batch, y_batch_coll, y_batch_rest):
@@ -195,12 +195,23 @@ class Worker:
         print(f'Размер: {get_x_data.shape}')
         return get_x_data
 
-def accuracy_calculate(model, x_val, y_val):
+def accuracy_calculate(model, x_val, y_val, colls = True):
     right_answer = []
     predVal = model.predict(x_val)
-    for i, x in enumerate(predVal):
-        if np.argmax(x) == np.argmax(y_val[i]):
-            right_answer.append([np.argmax(x), i])
-    right_answer = np.array(right_answer)
-    accuracy = len(right_answer)/len(y_val)
+    if colls:
+        for i, x in enumerate(predVal):
+            if np.argmax(x) == np.argmax(y_val[i]):
+                right_answer.append([np.argmax(x), i])
+        right_answer = np.array(right_answer)
+        accuracy = len(right_answer) / len(y_val)
+    else:
+        summ = 0
+        print(y_val[0])
+        for i, x in enumerate(predVal):
+            print(x, y_val[i])
+            loss = abs((x[0]-y_val[i, 0])/y_val[i, 0])
+            summ += loss
+            right_answer.append(loss)
+        accuracy = 1 - sum(right_answer)/len(right_answer)
+        print(accuracy)
     return accuracy
