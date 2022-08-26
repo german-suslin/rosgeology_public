@@ -206,9 +206,7 @@ def accuracy_calculate(model, x_val, y_val, colls = True):
         accuracy = len(right_answer) / len(y_val)
     else:
         summ = 0
-        print(y_val[0])
         for i, x in enumerate(predVal):
-            print(x, y_val[i])
             loss = abs((x[0]-y_val[i, 0])/y_val[i, 0])
             summ += loss
             right_answer.append(loss)
