@@ -210,11 +210,15 @@ def accuracy_calculate(model, x_val, y_val, colls = True):
         right_answer = np.array(right_answer)
         accuracy = len(right_answer) / len(y_val)
     else:
-        summ = 0
         for i, x in enumerate(predVal):
-            loss = abs((x[0]-y_val[i, 0])/y_val[i, 0])
-            summ += loss
-            right_answer.append(loss)
+            if y_val[i, 0] != 0:
+                loss = abs((x[0]-y_val[i, 0])/y_val[i, 0])
+                right_answer.append(loss)
+            elif x[0] != 0:
+                loss = abs((x[0] - y_val[i, 0]) / y_val[i, 0])
+                right_answer.append(loss)
+            else:
+                right_answer.append(0)
         accuracy = 1 - sum(right_answer)/len(right_answer)
         print(accuracy)
     return accuracy
