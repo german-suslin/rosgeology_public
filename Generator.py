@@ -215,7 +215,7 @@ def accuracy_calculate(model, x_val, y_val, colls = True):
                 loss = abs((x[0]-y_val[i, 0])/y_val[i, 0])
                 right_answer.append(loss)
             elif x[0] != 0:
-                loss = abs((x[0] - y_val[i, 0]) / y_val[i, 0])
+                loss = abs((x[0] - y_val[i, 0]) / x[0])
                 right_answer.append(loss)
             else:
                 right_answer.append(0)
