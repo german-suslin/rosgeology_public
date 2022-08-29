@@ -215,8 +215,7 @@ if __name__ == '__main__':
     model.compile(loss=loss, metrics=[metrics], optimizer=Adam(learning_rate=1e-5))
 
     print('validation loss {} ='.format(loss),
-          accuracy_calculate(model, x_val_data[0], y_val_data[0], colls=False, scaler=norm_y_fit[0])
-          , '%')
+          accuracy_calculate(model, x_val_data[0], y_val_data[0], colls=False, scaler=norm_y_fit[0]))
     plt.subplot(2, 2, 1)
     plt.title(label='ошибка')
     plt.plot(history.history['val_loss'], label='Test')
