@@ -88,7 +88,7 @@ class Generator(tensorflow.keras.utils.Sequence):
         self.norm_fit = []
         self.norm_y_fit = []
         self.only_colls = only_colls
-
+        self.len_norm = len(x_columns)
     def info(self):
         '''
         Вывод информации о датафрейма
@@ -98,16 +98,17 @@ class Generator(tensorflow.keras.utils.Sequence):
 
     def add_error(self, errors_indx, errors_value):
         # Добавляем ошибки к исходным данным
+        self.len_norm = len(errors_indx)
         for row in range(len(self.x_data)):
-            for column in range(len(self.x_data[0])):
+            for column in range(len(errors_indx)):
                 self.x_data[row, column] = round(self.x_data[row, column] + \
                                                  random.uniform(-errors_value[column],
                                                                 errors_value[column]), 3)
         print(self.x_data.shape)
 
-    def normalize(self):
+    def normalize(self, columns):
         # нормализация каждого столбца данных
-        for i in range(len(self.x_columns)):
+        for i in columns:
             x = self.x_data[:, i].reshape(-1, 1)
             xScaler = StandardScaler()
             xScaler.fit(x)
@@ -117,14 +118,14 @@ class Generator(tensorflow.keras.utils.Sequence):
             y = self.y_data_rest[:, i].reshape(-1, 1)
             yScaler = StandardScaler()
             yScaler.fit(y)
-            self.y_data_rest[:, i] = np.array(xScaler.transform(y)).reshape(-1)
+            self.y_data_rest[:, i] = np.array(yScaler.transform(y)).reshape(-1)
             self.norm_y_fit.append(yScaler)
         # возвращает список нормализаторов, чтобы потом нормализировать
         # тестовые данные
         return self.norm_fit, self.norm_y_fit
 
     def normalize_test(self, norm_fit, norm_y_fit):
-        for i in range(len(self.x_columns)):
+        for i in range(len(norm_fit)):
             x = self.x_data[:, i].reshape(-1, 1)
             self.x_data[:, i] = np.array(norm_fit[i].transform(x)).reshape(-1)
         for i in range(len(norm_y_fit)):
@@ -200,25 +201,25 @@ class Worker:
         print(f'Размер: {get_x_data.shape}')
         return get_x_data
 
-def accuracy_calculate(model, x_val, y_val, colls = True):
+# Функция рассчёта точности/ошибки
+def accuracy_calculate(model, x_val, y_val, colls = True, scaler = None):
     right_answer = []
     predVal = model.predict(x_val)
     if colls:
+        # Рассчёт точности для модели предсказания коллекторов
         for i, x in enumerate(predVal):
             if np.argmax(x) == np.argmax(y_val[i]):
                 right_answer.append([np.argmax(x), i])
         right_answer = np.array(right_answer)
         accuracy = len(right_answer) / len(y_val)
-    else:
-        for i, x in enumerate(predVal):
-            if y_val[i, 0] != 0:
-                loss = abs((x[0]-y_val[i, 0])/y_val[i, 0])
-                right_answer.append(loss)
-            elif x[0] != 0:
-                loss = abs((x[0] - y_val[i, 0]) / x[0])
-                right_answer.append(loss)
-            else:
-                right_answer.append(0)
-        accuracy = 1 - sum(right_answer)/len(right_answer)
         print(accuracy)
-    return accuracy
+        return accuracy
+    else:
+        # Рассчёт средней ошибки для модели предсказания KNEF/KPEF
+        for i, x in enumerate(predVal):
+            loss = abs((x[0]-y_val[i, 0]))
+            right_answer.append(loss)
+        loss = sum(right_answer)/len(right_answer)
+        loss = scaler.transform(loss)
+        return loss
+
