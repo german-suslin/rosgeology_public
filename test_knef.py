@@ -159,17 +159,17 @@ if train_state == 'consistent':
 # Создание модели
 if train_state == 'parallel':
     input_model = Input(shape=(lenght, len(x_columns)))
-    conv = Conv1D(128, 3, activation='relu', padding='same')(input_model)
+    conv = Conv1D(256, 3, activation='relu', padding='same')(input_model)
     batch_normalized1 = BatchNormalization()(conv)
     # batch_normalized1 = Dropout(0.1)(batch_normalized1)
     max_pool1 = MaxPooling1D()(batch_normalized1)
     flatten1 = Flatten()(max_pool1)
-    conv2 = Conv1D(64, 4, activation='relu', padding='same')(input_model)
+    conv2 = Conv1D(128, 4, activation='relu', padding='same')(input_model)
     batch_normalized2 = BatchNormalization()(conv2)
     # batch_normalized2 = Dropout(0.1)(batch_normalized2)
     max_pool2 = MaxPooling1D()(batch_normalized2)
     flatten2 = Flatten()(max_pool2)
-    conv3 = Conv1D(32, 5, activation='relu', padding='same')(input_model)
+    conv3 = Conv1D(64, 5, activation='relu', padding='same')(input_model)
     batch_normalized3 = BatchNormalization()(conv3)
     # batch_normalized3 = Dropout(0.1)(batch_normalized3)
     max_pool3 = MaxPooling1D()(batch_normalized3)
@@ -180,7 +180,7 @@ if train_state == 'parallel':
 output_coll = Dense(1, activation='sigmoid')(last_layer)
 
 # Путь сохранения модели и графиков
-model_name = 'test_80col_{}_n10'.format(train_state)
+model_name = 'test_80col_bigger_{}_n10'.format(train_state)
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
