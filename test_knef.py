@@ -21,7 +21,7 @@ import numpy as np
 
 
 # Подгрузка данных
-train_worker0 = Worker('df_norm_ts.csv')
+train_worker0 = Worker('df80_norm_ts.csv')
 train_worker1 = Worker('train.csv')
 train_worker2 = Worker('train_2.csv')
 train_worker3 = Worker('train_3corr.csv')
@@ -67,10 +67,10 @@ x_val = np.concatenate([x_val, y_val_coll], axis=1)
 x_data = np.concatenate([x_data, y_data_colls], axis=1)
 y_data = np.concatenate([y_data_colls, y_data_rest], axis=1)
 x_test, x_train, y_test, y_train = train_test_split(x_data, y_data, train_size=0.2, shuffle=False)
-y_train_coll = y_train[:,:3]
-y_test_coll = y_test[:,:3]
-y_train_rest = y_train[:, 4].reshape(-1, 1)
-y_test_rest = y_test[:, 4].reshape(-1, 1)
+y_train_coll = y_train[:,:1]
+y_test_coll = y_test[:,:1]
+y_train_rest = y_train[:, 2].reshape(-1, 1)
+y_test_rest = y_test[:, 2].reshape(-1, 1)
 y_val_rest = y_val_rest[:, 1].reshape(-1, 1)
 
 print('after concat:', x_train.shape,
@@ -87,10 +87,10 @@ range_pe_loss = 1
 range_ds_loss = 50
 range_dtp_loss = 20
 
-errors = [range_ggkp_loss, range_gk_loss, range_pe_loss, range_dtp_loss, 0, 0, 0, 0, 0, 0]
-x_columns = [0, 1, 2, 4, 5, 6, 7, 8, 9, 10]
+errors = [range_ggkp_loss, range_gk_loss, range_pe_loss, range_dtp_loss, 0, 0, 0, 0]
+x_columns = [0, 1, 2, 4, 5, 6, 7, 8]
 norm_columns = [0, 1, 2, 3, 4, 5, 6]
-error_column_inx = [0, 1, 2, 4, 5, 6, 7, 8, 9, 10]
+error_column_inx = [0, 1, 2, 4, 5, 6, 7, 8]
 print(error_column_inx)
 
 
@@ -180,7 +180,7 @@ if train_state == 'parallel':
 output_coll = Dense(1, activation='sigmoid')(last_layer)
 
 # Путь сохранения модели и графиков
-model_name = 'test_dataset_{}_n10'.format(train_state)
+model_name = 'test_80col_{}_n10'.format(train_state)
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
