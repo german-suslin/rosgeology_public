@@ -114,23 +114,23 @@ class Generator(tensorflow.keras.utils.Sequence):
             xScaler.fit(x)
             self.norm_fit.append(xScaler)
             self.x_data[:, i] = np.array(xScaler.transform(x)).reshape(-1)
-        for i in range(len(self.y_data_rest[0])):
-            y = self.y_data_rest[:, i].reshape(-1, 1)
-            yScaler = StandardScaler()
-            yScaler.fit(y)
-            self.y_data_rest[:, i] = np.array(yScaler.transform(y)).reshape(-1)
-            self.norm_y_fit.append(yScaler)
+        # for i in range(len(self.y_data_rest[0])):
+        #     y = self.y_data_rest[:, i].reshape(-1, 1)
+        #     yScaler = StandardScaler()
+        #     yScaler.fit(y)
+        #     self.y_data_rest[:, i] = np.array(yScaler.transform(y)).reshape(-1)
+        #     self.norm_y_fit.append(yScaler)
         # возвращает список нормализаторов, чтобы потом нормализировать
         # тестовые данные
         return self.norm_fit, self.norm_y_fit
 
-    def normalize_test(self, norm_fit, norm_y_fit):
+    def normalize_test(self, norm_fit, norm_y_fit = None):
         for i in range(len(norm_fit)):
             x = self.x_data[:, i].reshape(-1, 1)
             self.x_data[:, i] = np.array(norm_fit[i].transform(x)).reshape(-1)
-        for i in range(len(norm_y_fit)):
-            y = self.y_data_rest[:, i].reshape(-1, 1)
-            self.y_data_rest[:, i] = np.array(norm_y_fit[i].transform(y)).reshape(-1)
+        # for i in range(len(norm_y_fit)):
+        #     y = self.y_data_rest[:, i].reshape(-1, 1)
+        #     self.y_data_rest[:, i] = np.array(norm_y_fit[i].transform(y)).reshape(-1)
 
     def __get_data(self, x_batch, y_batch_coll, y_batch_rest):
         # Разбиваем наш батч на сеты
@@ -220,6 +220,6 @@ def accuracy_calculate(model, x_val, y_val, colls = True, scaler = None):
             loss = abs((x[0]-y_val[i, 0]))
             right_answer.append(loss)
         loss = np.array(sum(right_answer)/len(right_answer)).reshape(-1, 1)
-        loss = scaler.transform(loss)
+        # loss = scaler.transform(loss)
         return loss
 
