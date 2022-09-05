@@ -4,14 +4,12 @@ from sklearn.model_selection import train_test_split
 
 import random
 import tensorflow
-from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator  # для генерации выборки временных рядов
-from tensorflow.keras.layers import Dense, BatchNormalization
 from tensorflow.keras.models import Sequential, Model, load_model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import concatenate, \
     Input, Dense, Dropout, BatchNormalization, \
     Flatten, Conv1D, Conv2D, \
-    LSTM, MaxPooling1D  # Стандартные слои
+    LSTM, MaxPooling1D, Activation, UpSampling1D  # Стандартные слои
 
 import matplotlib.pyplot as plt
 
@@ -95,10 +93,10 @@ print(error_column_inx)
 
 
 # Параметры данных и эпохи обучения модели
-lenght = 10
-batch_size = 500
-epochs = 100
-train_state = 'parallel' # parallel or consistent
+lenght = 24
+batch_size = 300
+epochs = 10
+train_state = 'unet' # parallel or consistent
 
 # Создание генератора, нормализация данных
 Gen = Generator(x_train,
@@ -177,13 +175,126 @@ if train_state == 'parallel':
     concat = concatenate([flatten1, flatten2, flatten3])
     last_layer = Dense(512, activation = 'relu')(concat)
     last_layer = Dropout(0.3)(last_layer)
+
+if train_state == 'unet':
+    # def lstm_unet(input_shape=(88, 120, 3)):
+    '''
+    Функция создания сети
+    Входные параметры:
+    - input_shape - размерность
+    '''
+    input_model = Input(shape=(lenght, len(x_columns)))  # Создаем входной слой с размерностью input_shape
+    # Block 1
+    lstm_out1 = LSTM(256, return_sequences=True)(input_model)
+    x = Conv1D(64, 3, padding='same', name='block1_conv1')(input_model)  # Добавляем Conv2D-слой с 64-нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = Conv1D(64, 3, padding='same', name='block1_conv2')(x)  # Добавляем Conv2D-слой с 64-нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    block_1_out = Activation('relu')(x)  # Добавляем слой Activation и запоминаем в переменной block_1_out
+
+    x = MaxPooling1D(pool_size=2)(block_1_out)  # Добавляем слой MaxPooling2D
+
+    # Block 2
+    lstm_out2 = LSTM(128, return_sequences=True)(x)
+    x = Conv1D(128, 3, padding='same', name='block2_conv1')(x)  # Добавляем Conv2D-слой с 128-нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = Conv1D(128, 3, padding='same', name='block2_conv2')(x)  # Добавляем Conv2D-слой с 128-нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    block_2_out = Activation('relu')(x)  # Добавляем слой Activation и запоминаем в переменной block_2_out
+
+    x = MaxPooling1D()(block_2_out)  # Добавляем слой MaxPooling2D
+
+    # Block 3
+    lstm_out3 = LSTM(64, return_sequences=True)(x)
+    x = Conv1D(256, 3, padding='same', name='block3_conv1')(x)  # Добавляем Conv2D-слой с 256-нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = Conv1D(256, 3, padding='same', name='block3_conv2')(x)  # Добавляем Conv2D-слой с 256-нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = Conv1D(256, 3, padding='same', name='block3_conv3')(x)  # Добавляем Conv2D-слой с 256-нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    block_3_out = Activation('relu')(x)  # Добавляем слой Activation и запоминаем в переменной block_3_out
+
+    x = MaxPooling1D()(block_3_out)  # Добавляем слой MaxPooling2D
+
+    # Block 4
+    lstm_out4 = LSTM(32, return_sequences=True)(x)
+    x = Conv1D(512, 3, padding='same', name='block4_conv1')(x)  # Добавляем Conv2D-слой с 512-нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = Conv1D(512, 3, padding='same', name='block4_conv2')(x)  # Добавляем Conv2D-слой с 256-нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = Conv1D(512, 3, padding='same', name='block4_conv3')(x)  # Добавляем Conv2D-слой с 256-нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    block_4_out = Activation('relu')(x)  # Добавляем слой Activation и запоминаем в переменной block_4_out
+    x = concatenate([block_4_out, lstm_out4])
+
+    # UP 2
+    x = UpSampling1D(size=2)(x)
+    # x = Conv1DTranspose(256, 2, strides=2, padding='same')(x)  # Добавляем слой Conv2DTranspose с 256 нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = concatenate([x, block_3_out, lstm_out3])  # Объединем текущий слой со слоем block_3_out
+    x = Conv1D(256, 3, padding='same')(x)  # Добавляем слой Conv2D с 256 нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = Conv1D(256, 3, padding='same')(x)
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    # UP 3
+    x = UpSampling1D(size=2)(x)
+    # x = Conv1DTranspose(128, 2, strides=2, padding='same')(x)  # Добавляем слой Conv2DTranspose с 128 нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = concatenate([x, block_2_out, lstm_out2])  # Объединем текущий слой со слоем block_2_out
+    x = Conv1D(128, 3, padding='same')(x)  # Добавляем слой Conv2D с 128 нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = Conv1D(128, 3, padding='same')(x)  # Добавляем слой Conv2D с 128 нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    # UP 4
+    x = UpSampling1D(size=2)(x)
+    # x = Conv1DTranspose(64, 2, strides=2, padding='same')(x)  # Добавляем слой Conv2DTranspose с 64 нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = concatenate([x, block_1_out, lstm_out1])  # Объединем текущий слой со слоем block_1_out
+    x = Conv1D(64, 3, padding='same')(x)  # Добавляем слой Conv2D с 64 нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+
+    x = Conv1D(64, 3, padding='same')(x)  # Добавляем слой Conv2D с 64 нейронами
+    x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
+    x = Activation('relu')(x)  # Добавляем слой Activation
+    x = Flatten()(x)
+    last_layer = Dense(1, activation='linear')(x)  # Добавляем Conv2D-Слой с softmax-активацией на num_classes-нейронов
+
+
 output_coll = Dense(1, activation='sigmoid')(last_layer)
 
 # Путь сохранения модели и графиков
-model_name = 'test_80col_bigger_{}_core2_n10'.format(train_state)
+model_name = 'test_80col_bigger_{}_core3_n10'.format(train_state)
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
+
 
 # Компиляция модели
 model = Model(input_model, output_coll, name=model_name)
@@ -209,10 +320,10 @@ if __name__ == '__main__':
                             epochs=epochs,
                             verbose=1,
                             batch_size=batch_size,
-                            validation_data=Gen_test)#, callbacks=[reduse_callback, save_best_callback])
+                            validation_data=Gen_test, callbacks=[reduse_callback, save_best_callback])
 
-    # model = load_model(model_folder + model_name, compile=False)
-    # model.compile(loss=loss, metrics=[metrics], optimizer=Adam(learning_rate=1e-4))
+    model = load_model(model_folder + model_name, compile=False)
+    model.compile(loss=loss, metrics=[metrics], optimizer=Adam(learning_rate=1e-4))
 
     print('validation loss {} ='.format(loss),
           accuracy_calculate(model, x_val_data[0], y_val_data[0], colls=False))
@@ -229,6 +340,8 @@ if __name__ == '__main__':
     plt.legend()
     plt.savefig(graph_folder + model_name + '.jpg')
     plt.show()
+
+
 
 
 
