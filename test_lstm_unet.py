@@ -67,8 +67,8 @@ y_data = np.concatenate([y_data_colls, y_data_rest], axis=1)
 x_test, x_train, y_test, y_train = train_test_split(x_data, y_data, train_size=0.2, shuffle=False)
 y_train_coll = y_train[:,:3]
 y_test_coll = y_test[:,:3]
-y_train_rest = y_train[:, 4].reshape(-1, 1)
-y_test_rest = y_test[:, 4].reshape(-1, 1)
+y_train_rest = y_train[:, 3].reshape(-1, 1)
+y_test_rest = y_test[:, 3].reshape(-1, 1)
 y_val_rest = y_val_rest[:, 1].reshape(-1, 1)
 
 print('after concat:', x_train.shape,
@@ -86,14 +86,14 @@ range_ds_loss = 50
 range_dtp_loss = 20
 
 errors = [range_ggkp_loss, range_gk_loss, range_pe_loss, range_dtp_loss, 0, 0, 0, 0]
-x_columns = [0, 1, 2, 4, 5, 6, 7, 8]
+x_columns = [0, 1, 2, 4, 5, 6, 7]
 norm_columns = [0, 1, 2, 3, 4, 5, 6]
-error_column_inx = [0, 1, 2, 4, 5, 6, 7, 8]
+error_column_inx = [0, 1, 2, 4, 5, 6, 7]
 print(error_column_inx)
 
 
 # Параметры данных и эпохи обучения модели
-lenght = 24
+lenght = 16
 batch_size = 300
 epochs = 10
 train_state = 'unet' # parallel or consistent
@@ -176,65 +176,62 @@ if train_state == 'parallel':
     last_layer = Dense(512, activation = 'relu')(concat)
     last_layer = Dropout(0.3)(last_layer)
 
+# unet
 if train_state == 'unet':
     # def lstm_unet(input_shape=(88, 120, 3)):
-    '''
-    Функция создания сети
-    Входные параметры:
-    - input_shape - размерность
-    '''
+
     input_model = Input(shape=(lenght, len(x_columns)))  # Создаем входной слой с размерностью input_shape
     # Block 1
-    lstm_out1 = LSTM(256, return_sequences=True)(input_model)
-    x = Conv1D(64, 3, padding='same', name='block1_conv1')(input_model)  # Добавляем Conv2D-слой с 64-нейронами
+    lstm_out1 = LSTM(128, return_sequences=True)(input_model)
+    x = Conv1D(16, 3, padding='same', name='block1_conv1')(input_model)  # Добавляем Conv2D-слой с 64-нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
 
-    x = Conv1D(64, 3, padding='same', name='block1_conv2')(x)  # Добавляем Conv2D-слой с 64-нейронами
+    x = Conv1D(16, 3, padding='same', name='block1_conv2')(x)  # Добавляем Conv2D-слой с 64-нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     block_1_out = Activation('relu')(x)  # Добавляем слой Activation и запоминаем в переменной block_1_out
 
     x = MaxPooling1D(pool_size=2)(block_1_out)  # Добавляем слой MaxPooling2D
 
     # Block 2
-    lstm_out2 = LSTM(128, return_sequences=True)(x)
-    x = Conv1D(128, 3, padding='same', name='block2_conv1')(x)  # Добавляем Conv2D-слой с 128-нейронами
+    lstm_out2 = LSTM(64, return_sequences=True)(x)
+    x = Conv1D(32, 3, padding='same', name='block2_conv1')(x)  # Добавляем Conv2D-слой с 128-нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
 
-    x = Conv1D(128, 3, padding='same', name='block2_conv2')(x)  # Добавляем Conv2D-слой с 128-нейронами
+    x = Conv1D(32, 3, padding='same', name='block2_conv2')(x)  # Добавляем Conv2D-слой с 128-нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     block_2_out = Activation('relu')(x)  # Добавляем слой Activation и запоминаем в переменной block_2_out
 
     x = MaxPooling1D()(block_2_out)  # Добавляем слой MaxPooling2D
 
     # Block 3
-    lstm_out3 = LSTM(64, return_sequences=True)(x)
-    x = Conv1D(256, 3, padding='same', name='block3_conv1')(x)  # Добавляем Conv2D-слой с 256-нейронами
+    lstm_out3 = LSTM(32, return_sequences=True)(x)
+    x = Conv1D(64, 3, padding='same', name='block3_conv1')(x)  # Добавляем Conv2D-слой с 256-нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
 
-    x = Conv1D(256, 3, padding='same', name='block3_conv2')(x)  # Добавляем Conv2D-слой с 256-нейронами
+    x = Conv1D(64, 3, padding='same', name='block3_conv2')(x)  # Добавляем Conv2D-слой с 256-нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
 
-    x = Conv1D(256, 3, padding='same', name='block3_conv3')(x)  # Добавляем Conv2D-слой с 256-нейронами
+    x = Conv1D(64, 3, padding='same', name='block3_conv3')(x)  # Добавляем Conv2D-слой с 256-нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     block_3_out = Activation('relu')(x)  # Добавляем слой Activation и запоминаем в переменной block_3_out
 
     x = MaxPooling1D()(block_3_out)  # Добавляем слой MaxPooling2D
 
     # Block 4
-    lstm_out4 = LSTM(32, return_sequences=True)(x)
-    x = Conv1D(512, 3, padding='same', name='block4_conv1')(x)  # Добавляем Conv2D-слой с 512-нейронами
+    lstm_out4 = LSTM(16, return_sequences=True)(x)
+    x = Conv1D(128, 3, padding='same', name='block4_conv1')(x)  # Добавляем Conv2D-слой с 512-нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
 
-    x = Conv1D(512, 3, padding='same', name='block4_conv2')(x)  # Добавляем Conv2D-слой с 256-нейронами
+    x = Conv1D(128, 3, padding='same', name='block4_conv2')(x)  # Добавляем Conv2D-слой с 256-нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
 
-    x = Conv1D(512, 3, padding='same', name='block4_conv3')(x)  # Добавляем Conv2D-слой с 256-нейронами
+    x = Conv1D(128, 3, padding='same', name='block4_conv3')(x)  # Добавляем Conv2D-слой с 256-нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     block_4_out = Activation('relu')(x)  # Добавляем слой Activation и запоминаем в переменной block_4_out
     x = concatenate([block_4_out, lstm_out4])
@@ -246,11 +243,11 @@ if train_state == 'unet':
     x = Activation('relu')(x)  # Добавляем слой Activation
 
     x = concatenate([x, block_3_out, lstm_out3])  # Объединем текущий слой со слоем block_3_out
-    x = Conv1D(256, 3, padding='same')(x)  # Добавляем слой Conv2D с 256 нейронами
+    x = Conv1D(64, 3, padding='same')(x)  # Добавляем слой Conv2D с 256 нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
 
-    x = Conv1D(256, 3, padding='same')(x)
+    x = Conv1D(64, 3, padding='same')(x)
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
 
@@ -261,11 +258,11 @@ if train_state == 'unet':
     x = Activation('relu')(x)  # Добавляем слой Activation
 
     x = concatenate([x, block_2_out, lstm_out2])  # Объединем текущий слой со слоем block_2_out
-    x = Conv1D(128, 3, padding='same')(x)  # Добавляем слой Conv2D с 128 нейронами
+    x = Conv1D(32, 3, padding='same')(x)  # Добавляем слой Conv2D с 128 нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
 
-    x = Conv1D(128, 3, padding='same')(x)  # Добавляем слой Conv2D с 128 нейронами
+    x = Conv1D(32, 3, padding='same')(x)  # Добавляем слой Conv2D с 128 нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
 
@@ -276,21 +273,21 @@ if train_state == 'unet':
     x = Activation('relu')(x)  # Добавляем слой Activation
 
     x = concatenate([x, block_1_out, lstm_out1])  # Объединем текущий слой со слоем block_1_out
-    x = Conv1D(64, 3, padding='same')(x)  # Добавляем слой Conv2D с 64 нейронами
+    x = Conv1D(16, 3, padding='same')(x)  # Добавляем слой Conv2D с 64 нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
 
-    x = Conv1D(64, 3, padding='same')(x)  # Добавляем слой Conv2D с 64 нейронами
+    x = Conv1D(16, 3, padding='same')(x)  # Добавляем слой Conv2D с 64 нейронами
     x = BatchNormalization()(x)  # Добавляем слой BatchNormalization
     x = Activation('relu')(x)  # Добавляем слой Activation
-    x = Flatten()(x)
-    last_layer = Dense(1, activation='linear')(x)  # Добавляем Conv2D-Слой с softmax-активацией на num_classes-нейронов
+    last_layer = Flatten()(x)
+    # last_layer = Dense(1, activation='linear')(x)  # Добавляем Conv2D-Слой с softmax-активацией на num_classes-нейронов
 
 
 output_coll = Dense(1, activation='sigmoid')(last_layer)
 
 # Путь сохранения модели и графиков
-model_name = 'test_80col_bigger_{}_core3_n10'.format(train_state)
+model_name = 'test_{}_core_unet_n16_second'.format(train_state)
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'

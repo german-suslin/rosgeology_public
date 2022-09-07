@@ -13,7 +13,7 @@ from tensorflow.keras.layers import concatenate, \
     Flatten, Conv1D, Conv2D, \
     LSTM  # Стандартные слои
 
-import matplotlib.pyplot as plt
+import tensorflow.keras.backend as K
 
 import pandas as pd
 import numpy as np
@@ -30,7 +30,11 @@ errors = [range_ggkp_loss, range_gk_loss, range_pe_loss,
 
 
 # error_column_inx = [i for i in range(len(x_train[0]) - 3)]
-
+def tpe(y_true, y_pred):
+    true_value = y_true
+    pred_value = y_pred
+    tpe = K.mean(K.abs(true_value - pred_value)/true_value*100)
+    return tpe
 def adding_error(x: np.array, columns: list, errors: list) -> np.array:
     '''
     Добавляет ошибку к исходным данным и возвращает их
