@@ -85,16 +85,16 @@ range_pe_loss = 1
 range_ds_loss = 50
 range_dtp_loss = 20
 
-errors = [range_ggkp_loss, range_gk_loss, range_pe_loss, range_dtp_loss, 0, 0, 0, 0]
-x_columns = [0, 1, 2, 4, 5, 6, 7]
+errors = [range_ggkp_loss, range_gk_loss, range_pe_loss, range_dtp_loss, 0, 0, 0, 0, 0, 0, 0]
+x_columns = [0, 1, 2, 4, 5, 6, 7, 8, 9, 10]
 norm_columns = [0, 1, 2, 3, 4, 5, 6]
-error_column_inx = [0, 1, 2, 4, 5, 6, 7]
+error_column_inx = [0, 1, 2, 4, 5, 6, 7, 8, 9, 10]
 print(error_column_inx)
 
 
 # Параметры данных и эпохи обучения модели
 lenght = 16
-batch_size = 300
+batch_size = 500
 epochs = 10
 train_state = 'unet' # parallel or consistent
 

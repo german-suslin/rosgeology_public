@@ -4,7 +4,7 @@ from Generator import Worker, Generator, accuracy_calculate, tpe
 import matplotlib.pyplot as plt
 import numpy as np
 
-model_name = 'test_unet_core_unet_n16'
+model_name = 'test_unet_core_unet_n16_second'
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
@@ -12,10 +12,10 @@ model = load_model(model_folder + model_name, compile=False)
 
 model.compile(loss='mae', metrics=['mse'], optimizer=Adam(learning_rate=1e-4))
 model.summary()
-worker = Worker('test.csv')
+worker = Worker('test1000.csv')
 
 columns = ['GGKP_korr', 'GK_korr', 'PE_korr', 'DS_korr', 'DTP_korr', 'Wi_korr', 'BK_korr', 'BMK_korr']
-x_columns = [0, 1, 2, 4, 5, 6, 7, 8]
+x_columns = [0, 1, 2, 4, 5, 6, 7, 8, 9, 10]
 norm_columns = [0, 1, 2, 3, 4, 5, 6]
 
 x_data = worker.get_x_data(columns)
