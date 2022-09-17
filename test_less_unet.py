@@ -13,7 +13,7 @@ from tensorflow.keras.layers import concatenate, \
 
 import matplotlib.pyplot as plt
 
-from Generator import Generator, Worker, accuracy_calculate
+from Generator import Generator, Worker, accuracy_calculate, tpe
 import pandas as pd
 import numpy as np
 
@@ -129,7 +129,7 @@ Gen_val = Generator(x_val,
                     batch_size=len(x_val)-lenght,
                     x_columns=x_columns,
                     y_columns=[0], only_colls=False)
-Gen_val.add_error(error_column_inx, errors)
+# Gen_val.add_error(error_column_inx, errors)
 Gen_val.normalize_test(norm_fit, norm_y_fit)
 x_val_data = []
 y_val_data = []
@@ -267,7 +267,7 @@ model = Model(input_model, output_coll, name=model_name)
 model.summary()
 loss = "mae"
 metrics = 'mse'
-model.compile(loss=loss, metrics=[metrics], optimizer=Adam(learning_rate=1e-4))
+model.compile(loss=loss, metrics=[metrics, tpe], optimizer=Adam(learning_rate=1e-4))
 
 # Callbacks
 # создаём callback для сохранения лучшего результата и для уменьшения шага обучения при выходе на плато.
@@ -289,7 +289,7 @@ if __name__ == '__main__':
                             validation_data=Gen_test, callbacks=[reduse_callback, save_best_callback])
 
     model = load_model(model_folder + model_name, compile=False)
-    model.compile(loss=loss, metrics=[metrics], optimizer=Adam(learning_rate=1e-4))
+    model.compile(loss=loss, metrics=[metrics, tpe], optimizer=Adam(learning_rate=1e-4))
 
     print('validation loss {} ='.format(loss),
           accuracy_calculate(model, x_val_data[0], y_val_data[0], colls=False))
@@ -297,7 +297,7 @@ if __name__ == '__main__':
     plt.title(label='ошибка')
     plt.plot(history.history['val_loss'], label='Test')
     plt.plot(history.history['loss'], label='Train')
-    model.save(model_folder + model_name)
+    model.save(model_folder + model_name),
     plt.legend()
     plt.subplot(1, 2, 2)
     plt.title(label='{}'.format(metrics))
