@@ -177,7 +177,7 @@ class Worker:
         Инициализация
         '''
         self.df = pd.read_csv(fname, decimal=',')
-
+        self.enc = OneHotEncoder()
     def info(self):
         '''
         Вывод информации о датафрейма
@@ -194,10 +194,12 @@ class Worker:
         y_data_coll = enc.fit_transform(
             self.df['Коллекторы'].values.reshape(-1, 1)
         ).toarray().astype(np.int16)
+        self.enc = enc
         y_data_rest = self.df[['KPEF', 'KNEF']].values.astype(np.float32)
         print(f'Размер: {y_data_coll.shape, y_data_rest.shape}', self.df.columns)
         return y_data_coll, y_data_rest
-
+    def get_enc(self):
+        return self.enc
     def get_x_data(self, columns):
         '''
         Получение x_data
