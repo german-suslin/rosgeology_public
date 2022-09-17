@@ -110,7 +110,7 @@ class Generator(tensorflow.keras.utils.Sequence):
                                                                 errors_value[column]), 3)
         print(self.x_data.shape)
 
-    def normalize(self, columns):
+    def normalize(self, columns, norm_y = False):
         # нормализация каждого столбца данных
         for i in columns:
             x = self.x_data[:, i].reshape(-1, 1)
@@ -118,23 +118,25 @@ class Generator(tensorflow.keras.utils.Sequence):
             xScaler.fit(x)
             self.norm_fit.append(xScaler)
             self.x_data[:, i] = np.array(xScaler.transform(x)).reshape(-1)
-        # for i in range(len(self.y_data_rest[0])):
-        #     y = self.y_data_rest[:, i].reshape(-1, 1)
-        #     yScaler = StandardScaler()
-        #     yScaler.fit(y)
-        #     self.y_data_rest[:, i] = np.array(yScaler.transform(y)).reshape(-1)
-        #     self.norm_y_fit.append(yScaler)
+        if norm_y:
+            for i in range(len(self.y_data_rest[0])):
+                y = self.y_data_rest[:, i].reshape(-1, 1)
+                yScaler = StandardScaler()
+                yScaler.fit(y)
+                self.y_data_rest[:, i] = np.array(yScaler.transform(y)).reshape(-1)
+                self.norm_y_fit.append(yScaler)
         # возвращает список нормализаторов, чтобы потом нормализировать
         # тестовые данные
         return self.norm_fit, self.norm_y_fit
 
-    def normalize_test(self, norm_fit, norm_y_fit = None):
+    def normalize_test(self, norm_fit, norm_y_fit = None, norm_y = False):
         for i in range(len(norm_fit)):
             x = self.x_data[:, i].reshape(-1, 1)
             self.x_data[:, i] = np.array(norm_fit[i].transform(x)).reshape(-1)
-        # for i in range(len(norm_y_fit)):
-        #     y = self.y_data_rest[:, i].reshape(-1, 1)
-        #     self.y_data_rest[:, i] = np.array(norm_y_fit[i].transform(y)).reshape(-1)
+        if norm_y:
+            for i in range(len(norm_y_fit)):
+                y = self.y_data_rest[:, i].reshape(-1, 1)
+                self.y_data_rest[:, i] = np.array(norm_y_fit[i].transform(y)).reshape(-1)
 
     def __get_data(self, x_batch, y_batch_coll, y_batch_rest):
         # Разбиваем наш батч на сеты
