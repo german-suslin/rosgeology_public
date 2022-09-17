@@ -91,6 +91,7 @@ range_dtp_loss = 20
 
 errors = [range_ggkp_loss, range_gk_loss, range_pe_loss, range_dtp_loss, 0, 0, 0]
 x_columns = [0, 1, 2, 4, 5, 6, 7]
+norm_columns = [0, 1, 2, 3, 4, 5, 6]
 error_column_inx = [0, 1, 2, 4, 5, 6, 7]
 print(error_column_inx)
 
@@ -110,7 +111,7 @@ Gen = Generator(x_train,
                 x_columns=x_columns,
                 y_columns=[0], only_colls=True)
 Gen.add_error(error_column_inx, errors)
-norm_fit, norm_y_fit = Gen.normalize()
+norm_fit, norm_y_fit = Gen.normalize(columns=norm_columns)
 print('norm fit', len(norm_fit))
 Gen_test = Generator(x_test,
                      y_test_coll,
