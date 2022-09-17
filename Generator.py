@@ -218,7 +218,7 @@ def accuracy_calculate(model, x_val, y_val, colls = True, scaler = None):
                 right_answer.append([np.argmax(x), i])
         right_answer = np.array(right_answer)
         accuracy = len(right_answer) / len(y_val)
-        print(accuracy)
+        print('accuracy', accuracy)
         return accuracy
     else:
         # Рассчёт средней ошибки для модели предсказания KNEF/KPEF
