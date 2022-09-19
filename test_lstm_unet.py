@@ -95,7 +95,7 @@ print(error_column_inx)
 # Параметры данных и эпохи обучения модели
 lenght = 16
 batch_size = 500
-epochs = 10
+epochs = 20
 train_state = 'unet' # parallel or consistent
 
 # Создание генератора, нормализация данных
