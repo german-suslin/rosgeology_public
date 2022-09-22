@@ -23,7 +23,7 @@ train_worker0 = Worker('df_norm_ts.csv')
 train_worker1 = Worker('train.csv')
 train_worker2 = Worker('train_2.csv')
 train_worker3 = Worker('train_3corr.csv')
-test_worker = Worker('test.csv')
+test_worker = Worker('test1000.csv')
 
 print('worker info')
 train_worker0.info()
@@ -85,17 +85,17 @@ range_pe_loss = 1
 range_ds_loss = 50
 range_dtp_loss = 20
 
-errors = [range_ggkp_loss, range_gk_loss, range_pe_loss, range_dtp_loss, 0, 0, 0, 0, 0, 0, 0]
-x_columns = [0, 1, 2, 4, 5, 6, 7, 8, 9, 10]
+errors = [range_ggkp_loss, range_gk_loss, range_pe_loss, range_dtp_loss, 0, 0, 0, 0]
+x_columns = [0, 1, 2, 4, 5, 6, 7]
 norm_columns = [0, 1, 2, 3, 4, 5, 6]
-error_column_inx = [0, 1, 2, 4, 5, 6, 7, 8, 9, 10]
+error_column_inx = [0, 1, 2, 4, 5, 6, 7]
 print(error_column_inx)
 
 
 # Параметры данных и эпохи обучения модели
 lenght = 16
 batch_size = 500
-epochs = 20
+epochs = 15
 train_state = 'unet' # parallel or consistent
 
 # Создание генератора, нормализация данных
@@ -317,7 +317,7 @@ if __name__ == '__main__':
                             epochs=epochs,
                             verbose=1,
                             batch_size=batch_size,
-                            validation_data=Gen_test, callbacks=[reduse_callback, save_best_callback])
+                            validation_data=Gen_test, callbacks=[reduse_callback])
 
     model = load_model(model_folder + model_name, compile=False)
     model.compile(loss=loss, metrics=[metrics], optimizer=Adam(learning_rate=1e-4))

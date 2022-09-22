@@ -170,6 +170,15 @@ class Generator(tensorflow.keras.utils.Sequence):
             return x, y_rest
         # return x, [y_coll, y_rest]
 
+class Generator2d(Generator):
+    def __get_data(self, x_batch, y_batch_coll, y_batch_rest):
+        # Разбиваем наш батч на сеты
+        # Определим максимальный индекс
+        form = x_batch.shape[0] - self.length
+        x = [x_batch[i:i + self.length] for i in range(form)]
+        y_coll = [y_batch_coll[i] for i in range(form)]
+        y_rest = [y_batch_rest[i] for i in range(form)]
+        return np.expand_dims(x, 2), np.array(y_coll), np.array(y_rest)
 
 class Worker:
     def __init__(self, fname):
