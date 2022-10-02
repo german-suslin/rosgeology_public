@@ -5,9 +5,9 @@ import numpy as np
 
 def predict_kpef_knef(model,
             x_data:np.array,
-            y_data:np.array = None,
-            x_columns:list = None,
-            norm_columns:list = None,
+            y_data:np.array = np.array([]),
+            x_columns:list = [],
+            norm_columns:list = [],
             lenth:int = 16):
     '''
     x_data: данные первых 8 колонок и, опционально для моделей, данные коллекторов
@@ -27,7 +27,7 @@ def predict_kpef_knef(model,
     # Если указаны эталонные выходные данные - отбирает их
     # в противном случае - создаёт массивы нулей нужных размеров
     # это необходимо для корректной работы генератора
-    if y_data:
+    if len(y_data):
         y_colls = y_data[:,:3]
         y_rest = y_data[:,3:]
     else:
@@ -36,19 +36,21 @@ def predict_kpef_knef(model,
 
     # Обработка случаев, когда указаны списки колонок для отбора и нормализации
     # и когда не указаны.
-    if x_columns:
+    if len(x_columns):
         pass
     else:
         x_columns = [0, 1, 2, 4, 5, 6, 7, 8, 9, 10]
 
-    if norm_columns:
+    if len(norm_columns):
         pass
     else:
         norm_columns = [0, 1, 2, 3, 4, 5, 6]
 
-    # Создание генератора и заполнение массивов выходных и входных данных
+    # Создание генератора, нормализация и заполнение массивов выходных и входных данных
     # генератор по умолчанию создаёт сеты данных для обучения модели,
-    # поэтому
+    # поэтому в аргументы требует входные и выходные данные,
+    # по этой же причине - возвращает и входные и выходные данные,
+    # в случае, если мы не сравниваем с эталонными данными - принимает массивы нулей в качестве y_data
     Gen = Generator(x_data,
                     y_colls,
                     y_rest,
@@ -56,7 +58,7 @@ def predict_kpef_knef(model,
                     batch_size=len(x_data) - lenth,
                     x_columns=x_columns,
                     y_columns=[0], only_colls=False)
-    _, _ = Gen.normalize(columns=norm_columns)
+    norm_fit, norm_y_fit = Gen.normalize(columns=norm_columns)
     x_val_data = []
     y_val_data = []
     for x in Gen:
@@ -67,8 +69,11 @@ def predict_kpef_knef(model,
     y_val_data = np.array(y_val_data)
     print('validation data shape', x_val_data.shape, y_val_data.shape)
     pred = model.predict(x_val_data[0])
-    if y_data:
-        print(accuracy_calculate(model, x_val_data[0], y_val_data[0], colls=False))
+
+    # случай сравнения с эталонными данными.
+    if len(y_data):
+        print('loss mae',
+              accuracy_calculate(model, x_val_data[0], y_val_data[0], colls=False, scaler=norm_fit))
     return pred
 
 if __name__ == '__main__':
@@ -79,7 +84,7 @@ if __name__ == '__main__':
     model = load_model(model_folder + model_name, compile=False)
 
     model.compile(loss='mae', metrics=['mse'], optimizer=Adam(learning_rate=1e-4))
-    model.summary()
+    # model.summary()
     worker = Worker('test1000.csv')
 
     columns = ['GGKP_korr', 'GK_korr', 'PE_korr', 'DS_korr', 'DTP_korr', 'Wi_korr', 'BK_korr', 'BMK_korr']
@@ -90,7 +95,7 @@ if __name__ == '__main__':
 
     x_data = np.concatenate([x_data, y_data_colls], axis=1)
     y_data = np.concatenate([y_data_colls, y_data_rest], axis=1)
-
+    print('y_data', y_data.shape)
     predict = predict_kpef_knef(model, x_data, y_data=y_data)
     print(predict.shape)
     print(predict[:20])
