@@ -29,3 +29,14 @@ def predict_kpef(model,
                     batch_size=len(x_data) - lenth,
                     x_columns=x_columns,
                     y_columns=[0], only_colls=False)
+    norm_fit, norm_y_fit = Gen.normalize(columns=norm_columns)
+    x_val_data = []
+    y_val_data = []
+    for x in Gen:
+        x_val_data.append(x[0])
+        y_val_data.append(x[1])
+
+    x_val_data = np.array(x_val_data)
+    y_val_data = np.array(y_val_data)
+    print('validation data shape', x_val_data.shape, y_val_data.shape)
+    pred = model.predict(x_val_data[0])
