@@ -8,7 +8,8 @@ def predict_kpef_knef(model,
             y_data:np.array = np.array([]),
             x_columns:list = [],
             norm_columns:list = [],
-            lenth:int = 16):
+            lenth:int = 16,
+            predict_value:str = 'kpef'):
     '''
     x_data: данные первых 8 колонок и, опционально для моделей, данные коллекторов
     в формате OHE
@@ -23,13 +24,19 @@ def predict_kpef_knef(model,
     ВНИМАНИЕ - индексация не по исходному массиву данных, а по уже отобранному в x_columns
 
     lenth: длинна сета для предсказания (параметр зависит от модели), по умолчанию - 16
+
+    predict_value: какое значение предсказываем - kpef или knef. по умолчанию - kpef
+    влияет только на сравнение данных - по
     '''
     # Если указаны эталонные выходные данные - отбирает их
     # в противном случае - создаёт массивы нулей нужных размеров
     # это необходимо для корректной работы генератора
     if len(y_data):
         y_colls = y_data[:,:3]
-        y_rest = y_data[:,3:]
+        if predict_value == 'kpef':
+            y_rest = y_data[:,3].reshape(-1, 1)
+        else:
+            y_rest = y_data[:, 4].reshape(-1, 1)
     else:
         y_colls = np.zeros(shape=(x_data.shape[0],3))
         y_rest = np.zeros(shape=(x_data.shape[0],1))
@@ -96,6 +103,6 @@ if __name__ == '__main__':
     x_data = np.concatenate([x_data, y_data_colls], axis=1)
     y_data = np.concatenate([y_data_colls, y_data_rest], axis=1)
     print('y_data', y_data.shape)
-    predict = predict_kpef_knef(model, x_data)
+    predict = predict_kpef_knef(model, x_data, y_data=y_data)
     print(predict.shape)
     print(predict[:5])
