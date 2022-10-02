@@ -96,6 +96,6 @@ if __name__ == '__main__':
     x_data = np.concatenate([x_data, y_data_colls], axis=1)
     y_data = np.concatenate([y_data_colls, y_data_rest], axis=1)
     print('y_data', y_data.shape)
-    predict = predict_kpef_knef(model, x_data, y_data=y_data)
+    predict = predict_kpef_knef(model, x_data)
     print(predict.shape)
-    print(predict[:20])
+    print(predict[:5])
