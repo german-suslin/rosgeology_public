@@ -5,7 +5,7 @@ import numpy as np
 
 def predict_kpef(model,
             x_data,
-            y_data,
+            y_data = None,
             x_columns = None,
             norm_columns = None,
             lenth = 16):
@@ -18,7 +18,6 @@ def predict_kpef(model,
     else:
         y_colls = np.zeros(shape=(x_data.shape[0],3))
         y_rest = np.zeros(shape=(x_data.shape[0],1))
-    model.summary()
     if x_columns:
         pass
     else:
@@ -64,4 +63,6 @@ if __name__ == '__main__':
     x_data = worker.get_x_data(columns)
     y_data_colls, y_data_rest = worker.get_y_collektors()
     x_data = np.concatenate([x_data, y_data_colls], axis=1)
-    predict = predict_kpef(model, x_data,)
+    predict = predict_kpef(model, x_data)
+    print(predict.shape)
+    print(predict[:20])
