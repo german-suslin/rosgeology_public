@@ -236,7 +236,7 @@ def accuracy_calculate(model, x_val, y_val, colls = True, scaler = None):
         for i, x in enumerate(predVal):
             loss = abs((x[0]-y_val[i, 0]))
             right_answer.append(loss)
-        loss = np.array(sum(right_answer)/len(right_answer)).reshape(-1, 1)
+        loss = sum(right_answer)/len(right_answer)
         # loss = scaler.transform(loss)
-        return loss[0]
+        return loss
 
