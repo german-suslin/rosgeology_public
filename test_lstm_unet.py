@@ -67,8 +67,8 @@ y_data = np.concatenate([y_data_colls, y_data_rest], axis=1)
 x_test, x_train, y_test, y_train = train_test_split(x_data, y_data, train_size=0.2, shuffle=False)
 y_train_coll = y_train[:,:3]
 y_test_coll = y_test[:,:3]
-y_train_rest = y_train[:, 3].reshape(-1, 1)
-y_test_rest = y_test[:, 3].reshape(-1, 1)
+y_train_rest = y_train[:, 4].reshape(-1, 1)
+y_test_rest = y_test[:, 4].reshape(-1, 1)
 y_val_rest = y_val_rest[:, 1].reshape(-1, 1)
 
 print('after concat:', x_train.shape,
@@ -141,11 +141,10 @@ y_val_data = np.array(y_val_data)
 print('validation data shape', x_val_data.shape, y_val_data.shape)
 
 
-
+input_model = Input(shape=(lenght, len(x_columns)))
 
 # Создание модели (64, 32 / 128, 64 - большая выборка)
 if train_state == 'consistent':
-    input_model = Input(shape=(lenght, len(x_columns)))
     conv = Conv1D(128, 5, activation='relu', padding='same')(input_model)
     batch_normalized1 = BatchNormalization()(conv)
     max_pool = MaxPooling1D()(batch_normalized1)
@@ -156,7 +155,6 @@ if train_state == 'consistent':
 
 # Создание модели
 if train_state == 'parallel':
-    input_model = Input(shape=(lenght, len(x_columns)))
     conv = Conv1D(256, 2, activation='relu', padding='same')(input_model)
     batch_normalized1 = BatchNormalization()(conv)
     # batch_normalized1 = Dropout(0.1)(batch_normalized1)
@@ -178,9 +176,7 @@ if train_state == 'parallel':
 
 # unet
 if train_state == 'unet':
-    # def lstm_unet(input_shape=(88, 120, 3)):
-
-    input_model = Input(shape=(lenght, len(x_columns)))  # Создаем входной слой с размерностью input_shape
+    # input_model = Input(shape=(lenght, len(x_columns)))  # Создаем входной слой с размерностью input_shape
     # Block 1
     lstm_out1 = LSTM(128, return_sequences=True)(input_model)
     x = Conv1D(16, 3, padding='same', name='block1_conv1')(input_model)  # Добавляем Conv2D-слой с 64-нейронами
@@ -287,7 +283,7 @@ if train_state == 'unet':
 output_coll = Dense(1, activation='sigmoid')(last_layer)
 
 # Путь сохранения модели и графиков
-model_name = 'test_{}_core_unet_n16_second'.format(train_state)
+model_name = 'test_knef_{}_core_unet_n{}_second'.format(train_state, lenght)
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
@@ -302,7 +298,7 @@ model.compile(loss=loss, metrics=[metrics], optimizer=Adam(learning_rate=1e-4))
 
 # Callbacks
 # создаём callback для сохранения лучшего результата и для уменьшения шага обучения при выходе на плато.
-reduse_callback = tensorflow.keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.2,patience=20,verbose=1,mode='min',min_lr=0.000001,cooldown=10,min_delta=0.01)
+reduse_callback = tensorflow.keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.2,patience=2,verbose=1,mode='min',min_lr=0.000001,cooldown=1,min_delta=0.01)
 save_best_callback = tensorflow.keras.callbacks.ModelCheckpoint(
     filepath=model_folder+model_name,
     save_weights_only=False,
@@ -317,7 +313,7 @@ if __name__ == '__main__':
                             epochs=epochs,
                             verbose=1,
                             batch_size=batch_size,
-                            validation_data=Gen_test, callbacks=[reduse_callback])
+                            validation_data=Gen_test, callbacks=[reduse_callback, save_best_callback])
 
     model = load_model(model_folder + model_name, compile=False)
     model.compile(loss=loss, metrics=[metrics], optimizer=Adam(learning_rate=1e-4))

@@ -67,8 +67,8 @@ y_data = np.concatenate([y_data_colls, y_data_rest], axis=1)
 x_test, x_train, y_test, y_train = train_test_split(x_data, y_data, train_size=0.2, shuffle=False)
 y_train_coll = y_train[:,:3]
 y_test_coll = y_test[:,:3]
-y_train_rest = y_train[:, 3].reshape(-1, 1)
-y_test_rest = y_test[:, 3].reshape(-1, 1)
+y_train_rest = y_train[:, 4].reshape(-1, 1)
+y_test_rest = y_test[:, 4].reshape(-1, 1)
 y_val_rest = y_val_rest[:, 1].reshape(-1, 1)
 
 print('after concat:', x_train.shape,
@@ -94,7 +94,7 @@ print(error_column_inx)
 
 # Параметры данных и эпохи обучения модели
 lenght = 16
-batch_size = 500
+batch_size = 300
 epochs = 40
 train_state = 'unet' # parallel or consistent
 
@@ -256,7 +256,7 @@ if train_state == 'unet':
 output_coll = Dense(1, activation='sigmoid')(last_layer)
 
 # Путь сохранения модели и графиков
-model_name = 'test_{}_core_conv_n16_less'.format(train_state)
+model_name = 'test_knef_{}_core_conv_n16_less'.format(train_state)
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
@@ -271,7 +271,7 @@ model.compile(loss=loss, metrics=[metrics, tpe], optimizer=Adam(learning_rate=1e
 
 # Callbacks
 # создаём callback для сохранения лучшего результата и для уменьшения шага обучения при выходе на плато.
-reduse_callback = tensorflow.keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.2,patience=20,verbose=1,mode='min',min_lr=0.000001,cooldown=10,min_delta=0.01)
+reduse_callback = tensorflow.keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.2,patience=3,verbose=1,mode='min',min_lr=0.000001,cooldown=2,min_delta=0.01)
 save_best_callback = tensorflow.keras.callbacks.ModelCheckpoint(
     filepath=model_folder+model_name,
     save_weights_only=False,

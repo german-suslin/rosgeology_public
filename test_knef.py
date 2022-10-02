@@ -38,22 +38,22 @@ x_data = train_worker0.get_x_data(columns)
 y_data_colls, y_data_rest = train_worker0.get_y_collektors()
 print('get data')
 
-x_train1 = train_worker1.get_x_data(columns)
-y_train_coll1, y_train_rest1 = train_worker1.get_y_collektors()
-
-x_train2 = train_worker2.get_x_data(columns)
-y_train_coll2, y_train_rest2 = train_worker2.get_y_collektors()
-
-x_train3 = train_worker3.get_x_data(columns)
-y_train_coll3, y_train_rest3 = train_worker3.get_y_collektors()
+# x_train1 = train_worker1.get_x_data(columns)
+# y_train_coll1, y_train_rest1 = train_worker1.get_y_collektors()
+#
+# x_train2 = train_worker2.get_x_data(columns)
+# y_train_coll2, y_train_rest2 = train_worker2.get_y_collektors()
+#
+# x_train3 = train_worker3.get_x_data(columns)
+# y_train_coll3, y_train_rest3 = train_worker3.get_y_collektors()
 
 x_val = test_worker.get_x_data(columns)
 y_val_coll, y_val_rest = test_worker.get_y_collektors()
 
 # Объединение и разбиение на обучающую и проверочную выборки
-print('before concat:', x_data.shape,
-      y_data_colls.shape,
-      y_data_rest.shape)
+# print('before concat:', x_data.shape,
+#       y_data_colls.shape,
+#       y_data_rest.shape)
 # print('before concat:', x_train1.shape,
 #       x_train2.shape,
 #       x_train3.shape,
@@ -95,9 +95,9 @@ print(error_column_inx)
 
 
 # Параметры данных и эпохи обучения модели
-lenght = 10
+lenght = 32
 batch_size = 500
-epochs = 100
+epochs = 25
 train_state = 'parallel' # parallel or consistent
 
 # Создание генератора, нормализация данных
@@ -180,7 +180,7 @@ if train_state == 'parallel':
 output_coll = Dense(1, activation='sigmoid')(last_layer)
 
 # Путь сохранения модели и графиков
-model_name = 'test_80col_bigger_{}_core2_n10'.format(train_state)
+model_name = 'test_knef_bigger_{}_core2_n{}'.format(train_state, lenght)
 folder = 'data/'
 model_folder = folder + 'models/'
 graph_folder = folder + 'graphs/'
