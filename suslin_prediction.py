@@ -12,8 +12,12 @@ def predict_kpef(model,
     '''
 
     '''
-    y_colls = y_data[:,:3]
-    y_rest = y_data[:,3:]
+    if y_data:
+        y_colls = y_data[:,:3]
+        y_rest = y_data[:,3:]
+    else:
+        y_colls = np.zeros(shape=(x_data.shape[0],3))
+        y_rest = np.zeros(shape=(x_data.shape[0],1))
     model.summary()
     if x_columns:
         pass
@@ -23,7 +27,6 @@ def predict_kpef(model,
         pass
     else:
         norm_columns = [0, 1, 2, 3, 4, 5, 6]
-    x_data = np.concatenate([x_data, y_colls], axis=1)
     Gen = Generator(x_data,
                     y_colls,
                     y_rest,
@@ -61,3 +64,4 @@ if __name__ == '__main__':
     x_data = worker.get_x_data(columns)
     y_data_colls, y_data_rest = worker.get_y_collektors()
     x_data = np.concatenate([x_data, y_data_colls], axis=1)
+    predict = predict_kpef(model, x_data,)
