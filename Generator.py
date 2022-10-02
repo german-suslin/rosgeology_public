@@ -238,5 +238,5 @@ def accuracy_calculate(model, x_val, y_val, colls = True, scaler = None):
             right_answer.append(loss)
         loss = np.array(sum(right_answer)/len(right_answer)).reshape(-1, 1)
         # loss = scaler.transform(loss)
-        return loss
+        return loss[0]
 
